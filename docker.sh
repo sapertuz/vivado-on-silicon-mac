@@ -37,12 +37,17 @@ fi
 cd /home/user
 
 VIVADO_VERSION=0
+md5sumString=$(md5sum -b /home/user/*.bin | awk '{print $1}')
+
 # checking version
-if [[ $(md5sum -b /home/user/*.bin) =~ "e47ad71388b27a6e2339ee82c3c8765f" ]]
-then
-	VIVADO_VERSION=2023
+if [[ ($md5sumString == "e47ad71388b27a6e2339ee82c3c8765f") || ($md5sumString == "b8c785d03b754766538d6cde1277c4f0") ]]; then
+    VIVADO_VERSION=2023
+elif [[ $md5sumString == "9bf473b6be0b8531e70fd3d5c0fe4817" ]]; then
+    VIVADO_VERSION=2022
 else
-	VIVADO_VERSION=2022
+    VIVADO_VERSION=-1
+    f_echo "ERROR: None of the files is a valid vivado version md5sum: $md5sumString"
+    exit 1
 fi
 
 f_echo "Vivado Version: $VIVADO_VERSION"

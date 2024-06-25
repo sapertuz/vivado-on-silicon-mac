@@ -38,7 +38,6 @@
 O ?= .
 OBJ ?= $(O)/obj
 
-# It doesn't compile with recent versions of libftdi if the last flag is omitted.
 BUILD_FLAGS=-Werror -Wall -Os -Wno-deprecated
 
 # Can change LATENCY_TIMER value by including it on the make command as: LATENCY_TIMER=12
@@ -51,7 +50,11 @@ endif
 
 # Want USE_ASYNC to be the default
 ifdef USE_SYNC
-   SYNC=-UUSE_ASYNC
+   ifeq ($(USE_SYNC),0)
+      SYNC=-UUSE_ASYNC
+   else
+      SYNC=-DUSE_ASYNC
+   endif
 else
    SYNC=-DUSE_ASYNC
 endif
@@ -60,12 +63,21 @@ endif
 # Added the libraries/frameworks libusb links to dynamically
 # Want libftdi1 to be the default
 ifdef USE_LIBFTDI
-   CFLAGS=$(BUILD_FLAGS) $(LATENCY) $(SYNC) -UUSE_LIBFTDI1 -I/opt/homebrew/include
-   LDFLAGS=$(BUILD_FLAGS) -framework IOKit -framework CoreFoundation -framework Security
+   $(info $$USE_LIBFTDI is [${USE_LIBFTDI}])
+   ifeq ($(USE_LIBFTDI),0)
+      LIBFTDI=-UUSE_LIBFTDI1
+   else
+      LIBFTDI=-DUSE_LIBFTDI1
+   endif
 else
-   CFLAGS=$(BUILD_FLAGS) $(LATENCY) $(SYNC) -DUSE_LIBFTDI1 -I/opt/homebrew/include
-   LDFLAGS=$(BUILD_FLAGS) -framework IOKit -framework CoreFoundation -framework Security
+   LIBFTDI=-DUSE_LIBFTDI1
 endif
+
+CFLAGS=$(BUILD_FLAGS) $(LATENCY) $(SYNC) $(LIBFTDI) -I/opt/homebrew/include/
+LDFLAGS=$(BUILD_FLAGS) -framework IOKit -framework CoreFoundation -framework Security
+
+$(info $$CFLAGS is [${CFLAGS}])
+$(info $$LDFLAGS is [${LDFLAGS}])
 
 all: $(O) $(O)/xvcd
 

@@ -1,3 +1,14 @@
 .DS_Store
 *.bin
 installer/
+Xilinx
+Launch_Vivado.app/Contents/Resources/icon.icns
+
+*.log
+*.jou
+*.str
+
+.Xilinx
+.Xil
+.cache
+.java
